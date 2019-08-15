@@ -2,6 +2,14 @@
   "name": "kimejump",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
+    "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx src"
+  },
   "dependencies": {
     "@types/jest": "24.0.17",
     "@types/node": "12.7.2",
@@ -12,14 +20,27 @@
     "react-scripts": "3.1.1",
     "typescript": "3.5.3"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "devDependencies": {
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "prettier": "^1.18.2"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "plugins": [
+      "react",
+      "prettier"
+    ],
+    "extends": [
+      "react-app",
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended",
+      "prettier/react"
+    ],
+    "rules": {
+      "prettier/prettier": "error"
+    }
   },
   "browserslist": {
     "production": [
