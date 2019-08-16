@@ -15,13 +15,17 @@
     "@types/node": "12.7.2",
     "@types/react": "16.9.1",
     "@types/react-dom": "16.8.5",
+    "immer": "^3.2.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-redux": "^7.1.0",
     "react-scripts": "3.1.1",
+    "redux": "^4.0.4",
     "styled-components": "^4.3.2",
     "typescript": "3.5.3"
   },
   "devDependencies": {
+    "@types/react-redux": "^7.1.2",
     "@types/styled-components": "^4.1.18",
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
