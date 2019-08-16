@@ -1,6 +1,10 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { Action } from 'redux';
 import styled from 'styled-components';
+import { gameActionCreator } from './action';
 import { Board } from './Board';
+import { GameState } from './store';
 
 export const GameArea = styled.div`
   display: flex;
@@ -11,118 +15,77 @@ export const GameInfo = styled.div`
   margin-left: 20px;
 `;
 
-interface GameState {
+interface StateToProps {
   history: {
     squares: (string | null)[];
+    lastMarked: string | null;
+    nextPlayer: string | null;
+    existsWinner: { line: number[] } | null;
   }[];
+  players: string[];
   stepNumber: number;
-  xIsNext: boolean;
 }
 
-export class Game extends React.Component<{}, GameState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      history: [
-        {
-          squares: Array(9).fill(null),
-        },
-      ],
-      stepNumber: 0,
-      xIsNext: true,
-    };
-  }
+interface DispatchToProps {
+  markSquare: (squareId: number) => void;
+  jumpToStep: (stepNum: number) => void;
+}
 
-  handleClick(i: number) {
-    const { history: fullHistory, stepNumber, xIsNext } = this.state;
+type GameProps = StateToProps & DispatchToProps;
 
-    const history = fullHistory.slice(0, stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = [...current.squares];
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
+function Game(props: GameProps) {
+  const { history, stepNumber, markSquare, jumpToStep } = props;
 
-    squares[i] = xIsNext ? 'X' : 'O';
-    this.setState({
-      history: [...history, { squares }],
-      stepNumber: history.length,
-      xIsNext: !xIsNext,
-    });
-  }
+  const current = history[stepNumber];
+  const status = current.existsWinner
+    ? `Winner: ${current.lastMarked}`
+    : current.nextPlayer
+    ? `Next player: ${current.nextPlayer}`
+    : 'No winner';
 
-  jumpTo(step: number) {
-    this.setState({
-      stepNumber: step,
-      xIsNext: step % 2 === 0,
-    });
-  }
-
-  render() {
-    const { history, stepNumber, xIsNext } = this.state;
-
-    const current = history[stepNumber];
-    const result = calculateWinner(current.squares);
-    const status = result
-      ? `Winner: ${result.winner}`
-      : `Next player: ${xIsNext ? 'X' : 'O'}`;
-
-    const moves = history.map((_, move) => {
-      const desc = move ? `Go to move #${move}` : 'Go to game start';
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
-
+  const moves = history.map((_, move) => {
+    const desc = move ? `Go to move #${move}` : 'Go to game start';
     return (
-      <GameArea>
-        <div className="game-board">
-          <Board
-            squares={current.squares}
-            highlights={result ? result.line : null}
-            onClick={i => this.handleClick(i)}
-          />
-        </div>
-        <GameInfo>
-          <div>{status}</div>
-          <ol>{moves}</ol>
-        </GameInfo>
-      </GameArea>
+      <li key={move}>
+        <button onClick={() => jumpToStep(move)}>{desc}</button>
+      </li>
     );
-  }
-}
+  });
 
-function calculateWinner(
-  squares: (string | null)[]
-): { winner: string; line: number[] } | null {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  return lines.reduce<{ winner: string; line: number[] } | null>(
-    (obj, line) => {
-      if (obj) {
-        return obj;
-      }
-
-      const [a, b, c] = line;
-      const winner = squares[a];
-      if (winner && winner === squares[b] && winner === squares[c]) {
-        return {
-          winner,
-          line,
-        };
-      }
-      return null;
-    },
-    null
+  return (
+    <GameArea>
+      <div className="game-board">
+        <Board
+          squares={current.squares}
+          highlights={current.existsWinner ? current.existsWinner.line : null}
+          onClick={i => markSquare(i)}
+        />
+      </div>
+      <GameInfo>
+        <div>{status}</div>
+        <ol>{moves}</ol>
+      </GameInfo>
+    </GameArea>
   );
 }
+
+const mapStateToProps = (state: GameState): StateToProps => ({
+  ...state,
+});
+
+const mapDispatchToProps = (
+  dispatch: React.Dispatch<Action>
+): DispatchToProps => ({
+  markSquare: (squareId: number) => {
+    dispatch(gameActionCreator.markSquareAction(squareId));
+  },
+
+  jumpToStep: (stepNum: number) => {
+    dispatch(gameActionCreator.jumpToStepAction(stepNum));
+  },
+});
+
+export const GameContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Game);

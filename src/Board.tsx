@@ -21,6 +21,7 @@ export function Board(props: BoardProps) {
     const highlight = props.highlights ? props.highlights.includes(i) : false;
     return (
       <Square
+        key={i}
         value={props.squares[i]}
         highlight={highlight}
         onClick={() => props.onClick(i)}
@@ -32,7 +33,7 @@ export function Board(props: BoardProps) {
     const squares = Array.from(Array(3).keys()).map(i =>
       renderSquare(row * 3 + i)
     );
-    return <BoadRow>{squares}</BoadRow>;
+    return <BoadRow key={row}>{squares}</BoadRow>;
   };
 
   const rows = Array.from(Array(3).keys()).map(i => renderRow(i));
